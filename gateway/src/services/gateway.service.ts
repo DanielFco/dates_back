@@ -1,10 +1,16 @@
-import {Transport} from '@nestjs/microservices';
+import { Inject, Injectable } from "@nestjs/common";
+import { ClientProxy } from "@nestjs/microservices";
+import { read } from "fs";
+import { map } from "rxjs/operators";
 
+@Injectable()
 export class GatewayService {
-    private readonly envConfig: {[key: string]: any} = null;
+    constructor(@Inject('USER_SERVICE') private readonly clientUserService: ClientProxy){}
 
-    constructor() {
-        this.envConfig = {};
-        this.envConfig.port = process.env.API_GATEWAY_PORT
+    allUsers() {
+        const pattern = { cmd: 'user.create' };
+        const payload = {};
+
+        return this.clientUserService.send<string>(pattern, payload).pipe(map((message: string) =>({message})),);
     }
 }
